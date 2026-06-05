@@ -207,7 +207,7 @@ static void LoadInternal(ExtensionLoader &loader) {
 	config.AddExtensionOption("pg_use_text_protocol",
 	                          "Whether or not to use TEXT protocol to read data. This is slower, but provides better "
 	                          "compatibility with non-Postgres systems",
-	                          LogicalType::BOOLEAN, Value::BOOLEAN(false));
+	                          LogicalType::BOOLEAN, Value::BOOLEAN(true));
 	config.AddExtensionOption("pg_statement_timeout_millis",
 	                          "Postgres statement timeout in milliseconds to set on scan connections",
 	                          LogicalType::UINTEGER, Value());

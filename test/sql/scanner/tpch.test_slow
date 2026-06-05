@@ -9,6 +9,12 @@ require postgres_scanner
 require-env POSTGRES_TEST_DATABASE_AVAILABLE
 
 statement ok
+SET pg_debug_show_queries = FALSE
+
+statement ok
+SET pg_use_text_protocol = TRUE
+
+statement ok
 CALL postgres_attach('dbname=postgresscanner', source_schema='tpch', filter_pushdown=true);
 
 loop i 1 9

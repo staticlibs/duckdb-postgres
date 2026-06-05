@@ -64,7 +64,7 @@ SELECT w.id, w.label FROM row_types.widget_row
 1	hello
 
 statement ok
-SET pg_use_text_protocol=false;
+SET pg_use_text_protocol=true;
 
 statement ok
 DROP SCHEMA IF EXISTS row_types CASCADE;
@@ -123,7 +123,7 @@ SELECT w.id, w.label FROM row_types_b.widget_view
 1	hello
 
 statement ok
-SET pg_use_text_protocol=false;
+SET pg_use_text_protocol=true;
 
 statement ok
 DROP SCHEMA IF EXISTS row_types_a CASCADE;

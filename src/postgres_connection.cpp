@@ -62,7 +62,7 @@ static bool ResultHasError(PGresult *result) {
 }
 
 PGresult *PostgresConnection::PQExecute(optional_ptr<ClientContext> context, const string &query,
-                                        const PostgresParameters &params) {
+                                        const PostgresParameters &params, int format) {
 	if (PostgresConnection::DebugPrintQueries()) {
 		Printer::Print(query + "\n");
 	}
@@ -73,11 +73,10 @@ PGresult *PostgresConnection::PQExecute(optional_ptr<ClientContext> context, con
 	PGconn *conn = GetConn();
 	PGresult *res = nullptr;
 
-	if (params.Empty()) {
+	if (params.Empty() && format == 0) {
 		res = PQexec(GetConn(), query.c_str());
 	} else {
 		// Unlike PQexec, PQexecParams allows at most one SQL command in the given string.
-		int format = 0; // text format
 		res = PQexecParams(conn, query.c_str(), params.Count(), params.Types(), params.Values(), params.Lengths(),
 		                   params.Formats(), format);
 	}
@@ -93,9 +92,9 @@ PGresult *PostgresConnection::PQExecute(optional_ptr<ClientContext> context, con
 
 unique_ptr<PostgresResult> PostgresConnection::TryQuery(optional_ptr<ClientContext> context, const string &query,
                                                         optional_ptr<string> error_message,
-                                                        const PostgresParameters &params) {
+                                                        const PostgresParameters &params, int format) {
 	lock_guard<mutex> guard(connection->connection_lock);
-	auto result = PQExecute(context, query.c_str(), params);
+	auto result = PQExecute(context, query.c_str(), params, format);
 
 	if (ResultHasError(result)) {
 		if (error_message) {
@@ -109,9 +108,9 @@ unique_ptr<PostgresResult> PostgresConnection::TryQuery(optional_ptr<ClientConte
 }
 
 unique_ptr<PostgresResult> PostgresConnection::Query(optional_ptr<ClientContext> context, const string &query,
-                                                     const PostgresParameters &params) {
+                                                     const PostgresParameters &params, int format) {
 	string error_msg;
-	auto result = TryQuery(context, query, &error_msg, params);
+	auto result = TryQuery(context, query, &error_msg, params, format);
 	if (!result) {
 		throw std::runtime_error(error_msg);
 	}
@@ -119,8 +118,8 @@ unique_ptr<PostgresResult> PostgresConnection::Query(optional_ptr<ClientContext>
 }
 
 void PostgresConnection::Execute(optional_ptr<ClientContext> context, const string &query,
-                                 const PostgresParameters &params) {
-	Query(context, query, params);
+                                 const PostgresParameters &params, int format) {
+	Query(context, query, params, format);
 }
 
 vector<unique_ptr<PostgresResult>> PostgresConnection::ExecuteQueries(ClientContext &context, const string &queries) {
